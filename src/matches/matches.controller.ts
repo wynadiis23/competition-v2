@@ -259,7 +259,8 @@ export class MatchesController {
 
   @Version('2')
   @ApiOperation({
-    summary: 'Get list match of team based on competition, stage and group',
+    summary:
+      '[ADMIN] Get list match of team based on competition, stage and group',
   })
   @ApiParam({
     name: 'competition',
@@ -282,8 +283,8 @@ export class MatchesController {
     description: 'team',
     example: 'PAKU',
   })
-  @Get('/list/:competition/:group')
-  async listTeamMatches(
+  @Get('/admin/list/:competition/:group')
+  async listTeamMatchesAdmin(
     @Param('competition') competition: string,
     @Param('group') group: string,
     @Query('team') team: string,
@@ -297,6 +298,60 @@ export class MatchesController {
       stage.id,
       group,
       team,
+      true,
+    );
+
+    return {
+      competition,
+      stage,
+      group,
+      team,
+      matches,
+    };
+  }
+
+  @Version('2')
+  @ApiOperation({
+    summary:
+      '[CLIENT] Get list match of team based on competition, stage and group',
+  })
+  @ApiParam({
+    name: 'competition',
+    required: true,
+    type: 'string',
+    description: 'competition',
+    example: 'Champion',
+  })
+  @ApiParam({
+    name: 'group',
+    required: true,
+    type: 'string',
+    description: 'group',
+    example: 'Group_1_Store',
+  })
+  @ApiQuery({
+    name: 'team',
+    required: true,
+    type: 'string',
+    description: 'team',
+    example: 'PMEKASAN',
+  })
+  @Get('/client/list/:competition/:group')
+  async listTeamMatchesClient(
+    @Param('competition') competition: string,
+    @Param('group') group: string,
+    @Query('team') team: string,
+  ) {
+    // get latest stage of competition
+    const stages = await this.stageService.listStageRedis(competition);
+    const stage = stages[stages.length - 1];
+
+    const matches = await this.matchesService.listTeamMatches(
+      competition,
+      stage.id,
+      group,
+      team,
+      false,
     );
 
     return {
