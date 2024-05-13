@@ -1286,6 +1286,7 @@ export class MatchesService {
     stage: string,
     group: string,
     team: string,
+    isAdmin?: boolean,
   ) {
     try {
       const matchesResultId = `Matchup-${competition}-${stage}-${group}`;
@@ -1299,7 +1300,11 @@ export class MatchesService {
 
       const filteredData = filterNull(data);
 
-      const result = await this.constructTeamMatches(filteredData, team);
+      const result = await this.constructTeamMatches(
+        filteredData,
+        team,
+        isAdmin,
+      );
 
       return result;
     } catch (error) {
@@ -1308,7 +1313,11 @@ export class MatchesService {
     }
   }
 
-  async constructTeamMatches(data: Array<Array<string>>, team: string) {
+  async constructTeamMatches(
+    data: Array<Array<string>>,
+    team: string,
+    isAdmin?: boolean,
+  ) {
     try {
       const header = data[0];
       const dataWithoutHeader = [...data.slice(1)];
@@ -1316,8 +1325,12 @@ export class MatchesService {
       const matches: matchType[] = [];
       const assignedData = this.assignHeader(header, dataWithoutHeader);
 
+      const publishData = isAdmin
+        ? assignedData
+        : this.filterOnlyPublished(assignedData);
+
       // filter team matches
-      const teamMatches = this.filterTeamMatches(assignedData, team);
+      const teamMatches = this.filterTeamMatches(publishData, team);
 
       // get latest sales update data
       const configData = (await this.redisService.get('config')) as Array<
