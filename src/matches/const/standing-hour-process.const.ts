@@ -1,0 +1,1 @@
+export const STANDINGS_HOUR_PROCESS = 6;
