@@ -341,7 +341,7 @@ export class MatchesService {
     let filterDate: string;
     const timeZone = this.configService.get<string>('APP_TZ');
 
-    // const serverTimeUTC = dayjs.utc('2024-03-19T22:00:00.987Z'); // server time in UTC, 22 PM UTC -> GMT +8 is 6 AM
+    // const serverTimeUTC = dayjs.utc('2024-05-14T21:00:00.987Z'); // server time in UTC, 22 PM UTC -> GMT +8 is 6 AM
     const serverTimeUTC = dayjs.utc(new Date());
 
     const localTime = dayjs.tz(serverTimeUTC, timeZone);
@@ -1270,8 +1270,15 @@ export class MatchesService {
         ? assignedData
         : this.filterOnlyPublished(assignedData);
 
+      const filterDate = this.getFilterDate();
+
+      const filteredAssignedData = this.filterDataPrevBusinessDate(
+        publishData,
+        filterDate,
+      );
+
       const updatedStats = stat.map((team) => {
-        const matchesPlayed = publishData
+        const matchesPlayed = filteredAssignedData
           .filter(
             (match) => match.Home === team.team || match.Away === team.team,
           )
