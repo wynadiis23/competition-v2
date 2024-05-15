@@ -365,8 +365,7 @@ export class MatchesController {
 
   @Version('2')
   @ApiOperation({
-    summary:
-      '[ADMIN]Get list matches of latest stage based on competition and group',
+    summary: 'Get list matches of latest stage based on competition and group',
   })
   @ApiParam({
     name: 'competition',
@@ -382,7 +381,7 @@ export class MatchesController {
     description: 'stage',
     example: 'Group_1_Store',
   })
-  @Get('/admin/list/all/:competition/:group')
+  @Get('/list/all/:competition/:group')
   async listAdminMatchesRedisV2(
     @Param('competition') competition: string,
     @Param('group') group: string,
@@ -404,44 +403,44 @@ export class MatchesController {
     };
   }
 
-  @Version('2')
-  @ApiOperation({
-    summary:
-      '[CLIENT]Get list matches of latest stage based on competition and group',
-  })
-  @ApiParam({
-    name: 'competition',
-    required: true,
-    type: 'string',
-    description: 'competition',
-    example: 'Champion',
-  })
-  @ApiParam({
-    name: 'group',
-    required: true,
-    type: 'string',
-    description: 'stage',
-    example: 'Group_1_Store',
-  })
-  @Get('/client/list/all/:competition/:group')
-  async listClientMatchesRedisV2(
-    @Param('competition') competition: string,
-    @Param('group') group: string,
-  ) {
-    const stages = await this.stageService.listStageRedis(competition);
-    const stage = stages[stages.length - 1];
+  // @Version('2')
+  // @ApiOperation({
+  //   summary:
+  //     '[CLIENT]Get list matches of latest stage based on competition and group',
+  // })
+  // @ApiParam({
+  //   name: 'competition',
+  //   required: true,
+  //   type: 'string',
+  //   description: 'competition',
+  //   example: 'Champion',
+  // })
+  // @ApiParam({
+  //   name: 'group',
+  //   required: true,
+  //   type: 'string',
+  //   description: 'stage',
+  //   example: 'Group_1_Store',
+  // })
+  // @Get('/client/list/all/:competition/:group')
+  // async listClientMatchesRedisV2(
+  //   @Param('competition') competition: string,
+  //   @Param('group') group: string,
+  // ) {
+  //   const stages = await this.stageService.listStageRedis(competition);
+  //   const stage = stages[stages.length - 1];
 
-    const matches = await this.matchesService.listMatchesClient(
-      competition,
-      stage.id,
-      group,
-    );
+  //   const matches = await this.matchesService.listMatchesClient(
+  //     competition,
+  //     stage.id,
+  //     group,
+  //   );
 
-    return {
-      competition,
-      stage,
-      group,
-      matches,
-    };
-  }
+  //   return {
+  //     competition,
+  //     stage,
+  //     group,
+  //     matches,
+  //   };
+  // }
 }
