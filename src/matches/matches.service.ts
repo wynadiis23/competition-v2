@@ -76,7 +76,6 @@ type matchType = {
   am2: string | null;
   ssh2: string | null;
   sh2: string | null;
-  winnerImageUrl: string | null;
   team1ImageUrl: string | null;
   team2ImageUrl: string | null;
   salesUpdateTime: string | null;
@@ -748,7 +747,6 @@ export class MatchesService {
       ssh2: null,
       sh1: null,
       sh2: null,
-      winnerImageUrl: null,
       team1ImageUrl: null,
       team2ImageUrl: null,
       salesUpdateTime: null,
@@ -783,7 +781,6 @@ export class MatchesService {
           match.am1 = store.am;
           match.sh1 = store.sh;
           match.ssh1 = store.ssh;
-          match.winnerImageUrl = store.imageUrl;
           match.team1ImageUrl = store.imageUrl;
         }
 
@@ -791,7 +788,6 @@ export class MatchesService {
           match.am2 = store.am;
           match.sh2 = store.sh;
           match.ssh2 = store.ssh;
-          match.winnerImageUrl = store.imageUrl;
           match.team2ImageUrl = store.imageUrl;
         }
       }
