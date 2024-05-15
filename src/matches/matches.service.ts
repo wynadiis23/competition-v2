@@ -40,7 +40,7 @@ type matchResultType = {
   Publish?: string;
 };
 
-type teamStat = {
+export type teamStat = {
   team: string;
   totalMatches: number;
   totalPoint: number;
@@ -54,6 +54,7 @@ type teamStat = {
   pref: string | null;
   position: number;
   group?: string | null;
+  teamImg: string;
 };
 
 type totalAchvConstruct = {
@@ -576,6 +577,7 @@ export class MatchesService {
       totalTarget: 0,
       position: 0,
       pref: null,
+      teamImg: null,
     };
   }
 
@@ -1188,6 +1190,10 @@ export class MatchesService {
       this.assignLoser(filteredAssignedData, teamStats);
       this.assignTotalMatches(filteredAssignedData, teamStats);
 
+      // assign team images
+      const stores = await this.storeService.listStoreRedis();
+      this.assignTeamImages(teamStats, stores);
+
       this.calculateTotalSalesAndTarget(filteredAssignedData, teamStats);
 
       if (REWARD_STAGE_BY_POSITION.includes(stage)) {
@@ -1235,6 +1241,16 @@ export class MatchesService {
     } catch (error) {
       this.logger.error(`Error while construct match result ${error}`);
       throw new InternalServerErrorException();
+    }
+  }
+
+  assignTeamImages(teams: teamStat[], stores: storeType[]) {
+    for (const team of teams) {
+      for (const store of stores) {
+        if (team.team === store.code) {
+          team.teamImg = store.imageUrl;
+        }
+      }
     }
   }
 
