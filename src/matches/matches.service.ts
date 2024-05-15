@@ -76,10 +76,10 @@ type matchType = {
   am2: string | null;
   ssh2: string | null;
   sh2: string | null;
-  winnerImageUrl: string | null;
   team1ImageUrl: string | null;
   team2ImageUrl: string | null;
   salesUpdateTime: string | null;
+  isApproved?: number;
 };
 
 type matchResultWithAllWildcard = {
@@ -689,8 +689,10 @@ export class MatchesService {
 
   async constructListMatches(data: Array<Array<string>>) {
     try {
-      const header = data[0];
+      let header = data[0];
       const dataWithoutHeader = [...data.slice(1)];
+
+      header = header.filter((h) => h != null);
 
       const matches: matchType[] = [];
       const assignedData = this.assignHeader(header, dataWithoutHeader);
@@ -717,6 +719,9 @@ export class MatchesService {
       this.setStoreOwner(matches, stores);
       this.setSalesUpdateTime(matches, salesUpdateTime);
 
+      // set approved status
+      this.setApprovedStatus(matches, assignedData);
+
       // sort based on date asc
       matches.sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -742,16 +747,30 @@ export class MatchesService {
       ssh2: null,
       sh1: null,
       sh2: null,
-      winnerImageUrl: null,
       team1ImageUrl: null,
       team2ImageUrl: null,
       salesUpdateTime: null,
+      isApproved: 0,
     };
   }
 
   setSalesUpdateTime(matches: matchType[], salesUpdateTime: string) {
     for (const match of matches) {
       match.salesUpdateTime = salesUpdateTime;
+    }
+  }
+
+  setApprovedStatus(matches: matchType[], data: matchResultType[]) {
+    for (const match of matches) {
+      for (const d of data) {
+        if (
+          match.team1 === d.Home &&
+          match.team2 === d.Away &&
+          d.Publish === '1'
+        ) {
+          match.isApproved = 1;
+        }
+      }
     }
   }
 
@@ -762,7 +781,6 @@ export class MatchesService {
           match.am1 = store.am;
           match.sh1 = store.sh;
           match.ssh1 = store.ssh;
-          match.winnerImageUrl = store.imageUrl;
           match.team1ImageUrl = store.imageUrl;
         }
 
@@ -770,7 +788,6 @@ export class MatchesService {
           match.am2 = store.am;
           match.sh2 = store.sh;
           match.ssh2 = store.ssh;
-          match.winnerImageUrl = store.imageUrl;
           match.team2ImageUrl = store.imageUrl;
         }
       }
@@ -1354,6 +1371,9 @@ export class MatchesService {
       this.setStoreOwner(matches, stores);
       this.setSalesUpdateTime(matches, salesUpdateTime);
 
+      // set approved status
+      this.setApprovedStatus(matches, assignedData);
+
       // sort based on date asc
       matches.sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -1374,78 +1394,75 @@ export class MatchesService {
     return teamMatches;
   }
 
-  async listMatchesClient(competition: string, stage: string, group: string) {
-    try {
-      const matchesResultId = `Matchup-${competition}-${stage}-${group}`;
-      const data = (await this.redisService.get(matchesResultId)) as Array<
-        Array<string>
-      >;
+  // async listMatchesClient(competition: string, stage: string, group: string) {
+  //   try {
+  //     const matchesResultId = `Matchup-${competition}-${stage}-${group}`;
+  //     const data = (await this.redisService.get(matchesResultId)) as Array<
+  //       Array<string>
+  //     >;
 
-      if (!data) {
-        return [];
-      }
+  //     if (!data) {
+  //       return [];
+  //     }
 
-      const filteredData = filterNull(data);
+  //     const filteredData = filterNull(data);
 
-      const result = await this.constructListMatchesClient(filteredData);
+  //     const result = await this.constructListMatchesClient(filteredData);
 
-      return result;
-    } catch (error) {
-      this.logger.error(error);
+  //     return result;
+  //   } catch (error) {
+  //     this.logger.error(error);
 
-      throw new InternalServerErrorException();
-    }
-  }
+  //     throw new InternalServerErrorException();
+  //   }
+  // }
 
-  /**
-   * this method is purposed to be show in client
-   * we give admin an advantage of approved home and away idr sales to adjust sales of a team in a match
-   * in client we only show match result that has approved home and away idr sales
-   */
-  async constructListMatchesClient(data: Array<Array<string>>) {
-    try {
-      const header = data[0];
-      const dataWithoutHeader = [...data.slice(1)];
+  // /**
+  //  * this method is purposed to be show in client
+  //  * we give admin an advantage of approved home and away idr sales to adjust sales of a team in a match
+  //  * in client we only show match result that has approved home and away idr sales
+  //  */
+  // async constructListMatchesClient(data: Array<Array<string>>) {
+  //   try {
+  //     const header = data[0];
+  //     const dataWithoutHeader = [...data.slice(1)];
 
-      const matches: matchType[] = [];
-      const assignedData = this.assignHeader(header, dataWithoutHeader);
+  //     const matches: matchType[] = [];
+  //     const assignedData = this.assignHeader(header, dataWithoutHeader);
 
-      // CLIENT filter only match that has publish value
-      const dataWithValidIdrValue = this.filterOnlyPublished(assignedData);
+  //     // get latest sales update data
+  //     const configData = (await this.redisService.get('config')) as Array<
+  //       Array<string>
+  //     >;
 
-      // get latest sales update data
-      const configData = (await this.redisService.get('config')) as Array<
-        Array<string>
-      >;
+  //     if (!configData) {
+  //       return [];
+  //     }
 
-      if (!configData) {
-        return [];
-      }
+  //     const filteredData = filterNull(configData);
 
-      const filteredData = filterNull(configData);
+  //     const salesUpdateTime = filteredData[5][1];
 
-      const salesUpdateTime = filteredData[5][1];
+  //     for (const d of assignedData) {
+  //       matches.push(this.createMatches(d));
+  //     }
 
-      for (const d of dataWithValidIdrValue) {
-        matches.push(this.createMatches(d));
-      }
+  //     const stores = await this.storeService.listStoreRedis();
 
-      const stores = await this.storeService.listStoreRedis();
+  //     this.setStoreOwner(matches, stores);
+  //     this.setSalesUpdateTime(matches, salesUpdateTime);
 
-      this.setStoreOwner(matches, stores);
-      this.setSalesUpdateTime(matches, salesUpdateTime);
+  //     // sort based on date asc
+  //     matches.sort(
+  //       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  //     );
 
-      // sort based on date asc
-      matches.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-      );
-
-      return matches;
-    } catch (error) {
-      this.logger.error(error);
-      throw new InternalServerErrorException();
-    }
-  }
+  //     return matches;
+  //   } catch (error) {
+  //     this.logger.error(error);
+  //     throw new InternalServerErrorException();
+  //   }
+  // }
 
   /**
    * this method mainly use for match result list for CLIENT
