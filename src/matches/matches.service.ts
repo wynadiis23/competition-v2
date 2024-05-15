@@ -54,7 +54,7 @@ export type teamStat = {
   pref: string | null;
   position: number;
   group?: string | null;
-  teamImg: string;
+  img: string;
 };
 
 type totalAchvConstruct = {
@@ -577,7 +577,7 @@ export class MatchesService {
       totalTarget: 0,
       position: 0,
       pref: null,
-      teamImg: null,
+      img: null,
     };
   }
 
@@ -1248,7 +1248,7 @@ export class MatchesService {
     for (const team of teams) {
       for (const store of stores) {
         if (team.team === store.code) {
-          team.teamImg = store.imageUrl;
+          team.img = store.imageUrl;
         }
       }
     }
