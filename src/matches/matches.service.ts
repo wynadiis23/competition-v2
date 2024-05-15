@@ -295,7 +295,7 @@ export class MatchesService {
             stage,
           );
 
-        const sorted = teamStats.sort(this.sortByTotalPoint);
+        const sorted = teamStats.slice().sort(this.sortByTotalPoint);
 
         // Set pref for each team based on index
         sorted.forEach((team, index) => {
@@ -319,7 +319,7 @@ export class MatchesService {
 
       this.assignRewards(teamStats, idrPerPoint, partialGivenPercentage);
 
-      const sorted = teamStats.sort(this.sortByTotalPoint);
+      const sorted = teamStats.slice().sort(this.sortByTotalPoint);
 
       // Set pref for each team based on index
       sorted.forEach((team, index) => {
@@ -820,7 +820,7 @@ export class MatchesService {
       // filter only keep wildcard
       const wildcardStanding = this.filterOnlyKeepWildcard(allStandings);
 
-      const sorted = wildcardStanding.sort(this.sortByTotalPoint);
+      const sorted = wildcardStanding.slice().sort(this.sortByTotalPoint);
 
       sorted.forEach((team, index) => {
         // only set prefix to team that has a match
@@ -1197,7 +1197,7 @@ export class MatchesService {
             stage,
           );
 
-        const sorted = teamStats.sort(this.sortByTotalPoint);
+        const sorted = teamStats.slice().sort(this.sortByTotalPoint);
 
         // Set pref for each team based on index
         sorted.forEach((team, index) => {
@@ -1221,7 +1221,7 @@ export class MatchesService {
 
       this.assignRewards(teamStats, idrPerPoint, partialGivenPercentage);
 
-      const sorted = teamStats.sort(this.sortByTotalPoint);
+      const sorted = teamStats.slice().sort(this.sortByTotalPoint);
 
       // Set pref for each team based on index
       sorted.forEach((team, index) => {
