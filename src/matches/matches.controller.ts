@@ -1,8 +1,14 @@
-import { Controller, Get, Param, Query, Version } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+  Version,
+} from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { StagesService } from '../stages/stages.service';
-import { GroupsService } from '../groups/groups.service';
 
 @ApiTags('Matches')
 @Controller('matches')
@@ -10,7 +16,6 @@ export class MatchesController {
   constructor(
     private readonly matchesService: MatchesService,
     private readonly stageService: StagesService,
-    private readonly groupService: GroupsService,
   ) {}
 
   @ApiParam({
@@ -196,7 +201,12 @@ export class MatchesController {
   ) {
     // get latest stage of competition
     const stages = await this.stageService.listStageRedis(competition);
-    console.log(competition);
+    if (!stages.length) {
+      throw new BadRequestException(
+        `No stage found by this ${competition} competition`,
+      );
+    }
+
     const stage = stages[stages.length - 1];
 
     const standing = await this.matchesService.matchResultStandingV2(
@@ -240,7 +250,12 @@ export class MatchesController {
   ) {
     // get latest stage of competition
     const stages = await this.stageService.listStageRedis(competition);
-    console.log(competition);
+    if (!stages.length) {
+      throw new BadRequestException(
+        `No stage found by this ${competition} competition`,
+      );
+    }
+
     const stage = stages[stages.length - 1];
 
     const standing = await this.matchesService.matchResultStandingV2(
@@ -291,6 +306,12 @@ export class MatchesController {
   ) {
     // get latest stage of competition
     const stages = await this.stageService.listStageRedis(competition);
+    if (!stages.length) {
+      throw new BadRequestException(
+        `No stage found by this ${competition} competition`,
+      );
+    }
+
     const stage = stages[stages.length - 1];
 
     const matches = await this.matchesService.listTeamMatches(
@@ -344,6 +365,12 @@ export class MatchesController {
   ) {
     // get latest stage of competition
     const stages = await this.stageService.listStageRedis(competition);
+    if (!stages.length) {
+      throw new BadRequestException(
+        `No stage found by this ${competition} competition`,
+      );
+    }
+
     const stage = stages[stages.length - 1];
 
     const matches = await this.matchesService.listTeamMatches(
@@ -387,6 +414,12 @@ export class MatchesController {
     @Param('group') group: string,
   ) {
     const stages = await this.stageService.listStageRedis(competition);
+    if (!stages.length) {
+      throw new BadRequestException(
+        `No stage found by this ${competition} competition`,
+      );
+    }
+
     const stage = stages[stages.length - 1];
 
     const matches = await this.matchesService.listMatches(

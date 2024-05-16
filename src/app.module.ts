@@ -21,6 +21,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { GoogleSheetModule } from './google-sheet/google-sheet.module';
 import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
 import pino, { TransportTargetOptions } from 'pino';
+import { RulesModule } from './rules/rules.module';
 
 @Module({
   imports: [
@@ -92,6 +93,7 @@ import pino, { TransportTargetOptions } from 'pino';
     RedisModule,
     CronModule,
     GoogleSheetModule,
+    RulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
