@@ -1,4 +1,10 @@
-import { Controller, Get, Param, Version } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Version,
+} from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { StagesService } from '../stages/stages.service';
@@ -71,6 +77,12 @@ export class GroupsController {
   async listGroupRedisV2(@Param('competition') competition: string) {
     // get latest stage
     const stages = await this.stageService.listStageRedis(competition);
+    if (!stages.length) {
+      throw new BadRequestException(
+        `No stage found by this ${competition} competition`,
+      );
+    }
+
     const stage = stages[stages.length - 1];
 
     return await this.groupsService.listGroupRedis(competition, stage.id);
