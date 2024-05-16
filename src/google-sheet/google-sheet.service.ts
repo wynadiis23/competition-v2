@@ -76,15 +76,17 @@ export class GoogleSheetService {
     try {
       const sheet = await this.pullGoogleSheetData();
 
-      const configData = await this.getConfigGSheet(sheet);
-      const competitionData = await this.getCompetitionData(sheet);
-      const storeData = await this.getMasterStoreData(sheet);
+      let configData = await this.getConfigGSheet(sheet);
+      let competitionData = await this.getCompetitionData(sheet);
+      let storeData = await this.getMasterStoreData(sheet);
       const matchupData = await this.getResultStageGroup(sheet);
+      let ruleData = await this.getRules(sheet);
 
       // filter row that contain all null value
-      const filteredCompetitionData = filterNull(competitionData);
-      const filteredConfigData = filterNull(configData);
-      const filteredStoreData = filterNull(storeData);
+      competitionData = filterNull(competitionData);
+      configData = filterNull(configData);
+      storeData = filterNull(storeData);
+      ruleData = filterNull(ruleData);
 
       this.logger.log('Finished get data from sheet');
 
@@ -92,9 +94,12 @@ export class GoogleSheetService {
       await this.redisService.clearAll([]);
 
       // set newest data to redis
-      await this.redisService.set('competition', filteredCompetitionData);
-      await this.redisService.set('config', filteredConfigData);
-      await this.redisService.set('store', filteredStoreData);
+      await Promise.all([
+        this.redisService.set('competition', competitionData),
+        this.redisService.set('config', configData),
+        this.redisService.set('store', storeData),
+        this.redisService.set('rules', ruleData),
+      ]);
 
       let filteredMatchupData: any;
       for (const data of matchupData) {
@@ -218,6 +223,26 @@ export class GoogleSheetService {
       return values;
     } catch (error) {
       this.logger.error(`Error when get Matchup data ${error}`);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getRules(doc: any) {
+    try {
+      this.logger.log('Trying to get Rules Data');
+
+      const sheet = doc['Rules'];
+
+      const values: Array<Array<string>> = [];
+
+      for (const row of sheet) {
+        values.push(row);
+      }
+
+      return values;
+    } catch (error) {
+      this.logger.error(`Error when get Rules data ${error}`);
+
       throw new InternalServerErrorException();
     }
   }
