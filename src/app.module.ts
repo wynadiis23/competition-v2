@@ -81,7 +81,7 @@ import { RulesModule } from './rules/rules.module';
         };
       },
     }),
-    // ScheduleModule.forRoot(),
+    ScheduleModule.forRoot(),
     StoresModule,
     CompetitionsModule,
     GroupsModule,
